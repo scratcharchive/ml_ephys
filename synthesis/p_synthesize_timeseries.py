@@ -4,7 +4,7 @@ from mltools import mdaio
 
 processor_name='ephys.synthesize_timeseries'
 processor_version='0.11a'
-def synthesize_timeseries(*,firings='',waveforms='',timeseries_out,noise_level=1,samplerate=30000,duration=60,waveform_upsamplefac=1,amplitudes_row=0):
+def synthesize_timeseries(*,firings='',waveforms='',timeseries_out,noise_level=1,samplerate=30000,duration=60,waveform_upsamplefac,amplitudes_row=0):
     """
     Synthesize an electrophysiology timeseries from a set of ground-truth firing events and waveforms
 
