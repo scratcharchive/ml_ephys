@@ -1,2 +1,5 @@
 numpy
 git+https://github.com/magland/mltools.git
+deepdish
+scipy
+numpydoc

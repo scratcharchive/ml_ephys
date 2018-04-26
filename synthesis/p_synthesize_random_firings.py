@@ -3,7 +3,7 @@ import numpy as np
 from mltools import mdaio
 
 processor_name='ephys.synthesize_random_firings'
-processor_version='0.13b'
+processor_version='0.14'
 def synthesize_random_firings(*,firings_out,K=20,samplerate=30000,duration=60):
     """
     Synthesize random waveforms for use in creating a synthetic timeseries dataset
@@ -21,7 +21,7 @@ def synthesize_random_firings(*,firings_out,K=20,samplerate=30000,duration=60):
         (Optional) duration of the simulated acquisition in seconds
     """
     firing_rates=3*np.ones((K))
-    refr=10
+    refr=4
     
     N=np.int64(duration*samplerate)
     
