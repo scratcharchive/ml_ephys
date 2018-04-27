@@ -5,7 +5,7 @@ from mltools import mdaio
 
 processor_name='ephys.synthesize_random_waveforms'
 processor_version='0.1'
-def synthesize_random_waveforms(*,waveforms_out=None,geometry_out=None,M=5,T=500,K=20,upsamplefac=13,timeshift_factor=3):
+def synthesize_random_waveforms(*,waveforms_out=None,geometry_out=None,M=5,T=500,K=20,upsamplefac=13,timeshift_factor=3,average_peak_amplitude=10):
     """
     Synthesize random waveforms for use in creating a synthetic timeseries dataset
 
@@ -25,6 +25,8 @@ def synthesize_random_waveforms(*,waveforms_out=None,geometry_out=None,M=5,T=500
         (Optional) Controls amount of timeshift between waveforms on different channels for each template
     upsamplefac : int
         (Optional) used for upsampling the waveforms to avoid discretization artifacts
+    average_peak_amplitude : float
+        (Optional) used to scale the peak spike amplitude 
     """    
     geometry=None
     avg_durations=[200,10,30,200]
@@ -34,7 +36,6 @@ def synthesize_random_waveforms(*,waveforms_out=None,geometry_out=None,M=5,T=500
     rand_amp_factor_range=[0.5,1]
     geom_spread_coef1=0.2
     geom_spread_coef2=1
-    average_peak_amplitude=10
     
     if not geometry:
         geometry=np.zeros((2,M))
