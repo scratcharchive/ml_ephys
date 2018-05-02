@@ -77,7 +77,10 @@ def compute_autocorrelogram(times,*,max_dt_tp,bin_size_tp):
         else:
             break
         step+=1
-    all_vals=np.concatenate(vals_list)
+    if len(vals_list)>0:
+        all_vals=np.concatenate(vals_list)
+    else:
+        all_vals=np.array([]);
     aa=np.arange(-num_bins_left,num_bins_left+1)*bin_size_tp
     all_vals=np.sign(all_vals)*(np.abs(all_vals)-bin_size_tp*0.00001) # a trick to make the histogram symmetric
     bin_counts,bin_edges=np.histogram(all_vals,bins=aa)

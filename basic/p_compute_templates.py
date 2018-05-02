@@ -4,7 +4,7 @@ from mltools import mdaio
 from timeserieschunkreader import TimeseriesChunkReader
 
 processor_name='ephys.compute_templates'
-processor_version='0.1'
+processor_version='0.11'
 def compute_templates(*,timeseries,firings,templates_out,clip_size=100):
     """
     Compute templates (average waveforms) for clusters defined by the labeled events in firings.
@@ -25,52 +25,34 @@ def compute_templates(*,timeseries,firings,templates_out,clip_size=100):
     templates=compute_templates_helper(timeseries=timeseries,firings=firings,clip_size=clip_size)
     return mdaio.writemda32(templates,templates_out)
     
-def extract_clips(data,*,times,clip_size):
-    M=data.shape[0]
-    T=clip_size
-    L=len(times)
-    Tmid = int(np.floor((T + 1) / 2) - 1);
-    clips=np.zeros((M,T,L),dtype='float32')
-    for j in range(L):
-        t1=times[j]-Tmid
-        t2=t1+clip_size
-        clips[:,:,j]=data[:,t1:t2]
-    return clips
-
 # Same as compute_templates, except return the templates as an array in memory
 def compute_templates_helper(*,timeseries,firings,clip_size=100):
     X=mdaio.DiskReadMda(timeseries)
     M,N = X.N1(),X.N2()
-    N=N
     F=mdaio.readmda(firings)
     L=F.shape[1]
     L=L
     T=clip_size
-    times=F[1,:]
-    labels=F[2,:].astype(int)
+    Tmid = int(np.floor((T + 1) / 2) - 1);
+    times=F[1,:].ravel()
+    labels=F[2,:].ravel().astype(int)
     K=np.max(labels)
-    compute_templates._sums=np.zeros((M,T,K))
-    compute_templates._counts=np.zeros(K)
-    def _kernel(chunk,info):
-        inds=np.where((info.t1<=times)&(times<=info.t2))[0]
-        times0=(times[inds]-info.t1+info.t1a).astype(np.int32)
-        labels0=labels[inds]
-        
-        #clips0=np.zeros((M,clip_size,len(inds)),dtype=np.float32,order='F');
-        clips0=extract_clips(chunk,times=times0,clip_size=clip_size)
-        
-        for k in range(1,K+1):
-            inds_kk=np.where(labels0==k)[0]
-            compute_templates._sums[:,:,k-1]=compute_templates._sums[:,:,k-1]+np.sum(clips0[:,:,inds_kk],axis=2)
-            compute_templates._counts[k-1]=compute_templates._counts[k-1]+len(inds_kk)
-        return True
-    TCR=TimeseriesChunkReader(chunk_size_mb=40, overlap_size=clip_size*2)
-    if not TCR.run(timeseries,_kernel):
-        return None
-    templates=np.zeros((M,T,K))
+
+    sums=np.zeros((M,T,K),dtype='float64')
+    counts=np.zeros(K)
+
     for k in range(1,K+1):
-        if compute_templates._counts[k-1]:
-            templates[:,:,k-1]=compute_templates._sums[:,:,k-1]/compute_templates._counts[k-1]
+        inds_k=np.where(labels==k)[0]
+        #TODO: subsample
+        for ind_k in inds_k:
+            t0=int(times[ind_k])
+            if (clip_size<=t0) and (t0<N-clip_size):
+                clip0=X.readChunk(i1=0,N1=M,i2=t0-Tmid,N2=T)
+                sums[:,:,k-1]+=clip0
+                counts[k-1]+=1
+    templates=np.zeros((M,T,K))
+    for k in range(K):
+        templates[:,:,k]=sums[:,:,k]/counts[k]
     return templates
     
 compute_templates.name=processor_name

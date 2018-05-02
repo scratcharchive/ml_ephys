@@ -69,7 +69,7 @@ def determine_npy_header_size(fname):
 
 processor_name='ephys.convert_array'
 processor_version='0.1'
-def convert_array(*,input,output,dimensions='',dtype='',dtype_out=''):
+def convert_array(*,input,output,format='',format_out='',dimensions='',dtype='',dtype_out=''):
     """
     Convert a multi-dimensional array between various formats ('.mda', '.npy', '.dat') based on the file extensions of the input/output files
 
@@ -80,6 +80,10 @@ def convert_array(*,input,output,dimensions='',dtype='',dtype_out=''):
     output : OUTPUT
         Path of the output array file.
         
+    format : string
+        The format for the input array (mda, npy, dat), or determined from the file extension if empty
+    format_out : string
+        The format for the output input array (mda, npy, dat), or determined from the file extension if empty
     dimensions : string
         Comma-separated list of dimensions (shape). If empty, it is auto-determined, if possible, by the input array.
     dtype : string
@@ -88,8 +92,11 @@ def convert_array(*,input,output,dimensions='',dtype='',dtype_out=''):
         The data format for the output array. If empty, the dtype for the input array is used.
         
     """    
-    format_in=determine_file_format(file_extension(input),dimensions)
-    format_out=determine_file_format(file_extension(output),dimensions)
+    format_in=format
+    if not format_in:
+        format_in=determine_file_format(file_extension(input),dimensions)
+    if not format_out:
+        format_out=determine_file_format(file_extension(output),dimensions)
     print ('Input/output formats: {}/{}'.format(format_in,format_out))
 
     dims=None
