@@ -1,7 +1,8 @@
 import numpy as np
-
 from mltools import mdaio
 import os
+
+DEBUG=True
 
 def file_extension(fname):
     filename, ext = os.path.splitext(fname)
@@ -129,8 +130,20 @@ def convert_array(*,input,output,format='',format_out='',dimensions='',dtype='',
 
     if not dtype_out:
         raise Exception('Unable to determine datatype for output array')
+    
+    if (dims[1] == -1) and (dims[0] > 0):
+        if (dtype) and (format_in=='dat'):
+            bits      = int(dtype[-2:]) # number of bits per entry of dtype
+            filebytes = os.stat(input).st_size # bytes in input file
+            entries   = int(filebytes/(int(bits/8))) # entries in input file
+            dims[1]   = int(entries/dims[0]) # caclulated second dimension
+            if DEBUG:
+                print(bits)
+                print(filebytes)
+                print(int(filebytes/(int(bits/8))))
+                print(dims)
 
-    if not dims:
+    if not dims:       
         raise Exception('Unable to determine dimensions for input array')
 
     print ('Using dtype={}, dtype_out={}, dimensions={}'.format(dtype,dtype_out,','.join(str(item) for item in dims)))
