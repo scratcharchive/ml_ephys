@@ -70,7 +70,7 @@ def determine_npy_header_size(fname):
 
 processor_name='ephys.convert_array'
 processor_version='0.1'
-def convert_array(*,input,output,format='',format_out='',dimensions='',dtype='',dtype_out=''):
+def convert_array(*,input,output,format='',format_out='',dimensions='',dtype='',dtype_out='', channels=''):
     """
     Convert a multi-dimensional array between various formats ('.mda', '.npy', '.dat') based on the file extensions of the input/output files
 
@@ -91,7 +91,8 @@ def convert_array(*,input,output,format='',format_out='',dimensions='',dtype='',
         The data format for the input array. Choices: int8, int16, int32, uint16, uint32, float32, float64 (possibly float16 in the future).
     dtype_out : string
         The data format for the output array. If empty, the dtype for the input array is used.
-        
+    channels : string
+        Comma-seperated list of channels to keep in output. Zero-based indexing.
     """    
     format_in=format
     if not format_in:
@@ -146,6 +147,14 @@ def convert_array(*,input,output,format='',format_out='',dimensions='',dtype='',
     if not dims:       
         raise Exception('Unable to determine dimensions for input array')
 
+    if not channels:
+        channels = range(0, dims[0])
+    else:
+        channels = np.array([int(entry) for entry in channels.split(',')])
+
+    if DEBUG:
+        print(channels);
+
     print ('Using dtype={}, dtype_out={}, dimensions={}'.format(dtype,dtype_out,','.join(str(item) for item in dims)))
 
     if (format_in==format_out) and ((dtype==dtype_out) or (dtype_out=='')):
@@ -186,6 +195,7 @@ def convert_array(*,input,output,format='',format_out='',dimensions='',dtype='',
             print ('Warning: loading entire array into memory. This should be avoided in the future.')
             A=np.fromfile(input,dtype=dtype,count=np.product(dims));
             A=A.reshape(tuple(dims),order='F')
+            A=A[channels,:]
             if format_out=='mda':
                 mdaio.writemda(A,output,dtype=dtype_out)
             else:
