@@ -2,7 +2,7 @@ import numpy as np
 from mltools import mdaio
 import os
 
-DEBUG=True
+DEBUG=False
 
 def file_extension(fname):
     filename, ext = os.path.splitext(fname)
@@ -86,13 +86,13 @@ def convert_array(*,input,output,format='',format_out='',dimensions='',dtype='',
     format_out : string
         The format for the output input array (mda, npy, dat), or determined from the file extension if empty
     dimensions : string
-        Comma-separated list of dimensions (shape). If empty, it is auto-determined, if possible, by the input array.
+        Comma-separated list of dimensions (shape). If empty, it is auto-determined, if possible, by the input array. If second dim is -1 then it will be extrapolated from file size / first dim.
     dtype : string
         The data format for the input array. Choices: int8, int16, int32, uint16, uint32, float32, float64 (possibly float16 in the future).
     dtype_out : string
         The data format for the output array. If empty, the dtype for the input array is used.
     channels : string
-        Comma-seperated list of channels to keep in output. Zero-based indexing.
+        Comma-seperated list of channels to keep in output. Zero-based indexing. Only works for .dat to .mda conversions.
     """    
     format_in=format
     if not format_in:
