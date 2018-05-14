@@ -80,6 +80,7 @@ def compute_cluster_metrics(*,timeseries='',firings,metrics_out,clip_size=100,sa
     with open(metrics_out, 'w') as out:
         out.write(str)
     print('Done.')
+    return True
 
 compute_cluster_metrics.name=processor_name
 compute_cluster_metrics.version=processor_version
