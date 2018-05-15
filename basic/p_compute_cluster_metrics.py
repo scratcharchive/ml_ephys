@@ -68,7 +68,7 @@ def compute_cluster_metrics(*,timeseries='',firings,metrics_out,clip_size=100,sa
             for m in range(templates.shape[0]):
                 template_k[m,:]=template_k[m,:]-np.mean(template_k[m,:])
             peak_amplitude=np.max(np.abs(template_k))
-            clusters[k-1]['peak_amplitude']=peak_amplitude
+            clusters[k-1]['metrics']['peak_amplitude']=peak_amplitude
         ## todo: subtract template means, compute peak amplitudes
 
     ret={
