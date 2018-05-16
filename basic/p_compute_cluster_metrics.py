@@ -2,11 +2,13 @@ import numpy as np
 
 from mltools import mdaio
 from p_compute_templates import compute_templates_helper
+from p_compute_cross_correlograms import compute_cross_correlograms_helper
 import json
 
 processor_name='ephys.compute_cluster_metrics'
 processor_version='0.1'
-def compute_cluster_metrics(*,timeseries='',firings,metrics_out,clip_size=100,samplerate=0):
+def compute_cluster_metrics(*,timeseries='',firings,metrics_out,clip_size=100,samplerate=0,
+        compute_auto_correl=False):
     """
     Compute cluster metrics for a spike sorting output
 
@@ -65,11 +67,23 @@ def compute_cluster_metrics(*,timeseries='',firings,metrics_out,clip_size=100,sa
         for k in range(1,K+1):
             template_k=templates[:,:,k-1]
             # subtract mean on each channel (todo: vectorize this operation)
+            # Alex: like this?
+            # template_k[m,:] -= np.mean(template_k[m,:])
             for m in range(templates.shape[0]):
                 template_k[m,:]=template_k[m,:]-np.mean(template_k[m,:])
             peak_amplitude=np.max(np.abs(template_k))
             clusters[k-1]['metrics']['peak_amplitude']=peak_amplitude
         ## todo: subtract template means, compute peak amplitudes
+
+    if compute_auto_correl:
+        print('Computing Auto-Correlegrams')
+        auto_cors = compute_cross_correlograms_helper(firings,mode='autocorrelograms',samplerate=samplerate,max_dt_msec=50,bin_size_msec=2)
+        mid_ind  = mat_dt_msec/bins_size_msec/2
+        mid_inds = np.arange(mid_ind-2,mid_ind+2)
+        for k0,auto_cor in enumerate(auto_cors):
+            peak = np.percentile(auto_cor, 75)*1.0
+            mid  = np.mean(auto_cor[mid_inds])
+            clusters[k]['metrics']['refractory_ratio'] = 1-(mid/peak)
 
     ret={
         "clusters":clusters
