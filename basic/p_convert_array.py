@@ -13,6 +13,8 @@ def determine_file_format(ext,dimensions):
         return 'mda'
     elif ext=='.npy':
         return 'npy'
+    elif ext=='.dats':
+        return 'dat'
     else:
         return 'dat'
 
@@ -100,6 +102,7 @@ def convert_array(*,input,output,format='',format_out='',dimensions='',dtype='',
     if not format_out:
         format_out=determine_file_format(file_extension(output),dimensions)
     print ('Input/output formats: {}/{}'.format(format_in,format_out))
+    ext_in = file_extension(input)
 
     dims=None
 
@@ -134,10 +137,15 @@ def convert_array(*,input,output,format='',format_out='',dimensions='',dtype='',
     
     if (dims[1] == -1) and (dims[0] > 0):
         if (dtype) and (format_in=='dat'):
-            bits      = int(dtype[-2:]) # number of bits per entry of dtype
-            filebytes = os.stat(input).st_size # bytes in input file
+            bits      = int(dtype[-2:])        # number of bits per entry of dtype, TODO: make this smarter
+            if ext_in == format_in:
+                filebytes = os.stat(input).st_size # bytes in input file
+            elif ext_in == '.dats':
+                filebytes = os.stat(inputs[0]).st_size # bytes in first input file of list
+            else:
+                raise Exception('Error .dat file list only supported with .dats') 
             entries   = int(filebytes/(int(bits/8))) # entries in input file
-            dims[1]   = int(entries/dims[0]) # caclulated second dimension
+            dims[1]   = int(entries/dims[0])   # caclulated second dimension
             if DEBUG:
                 print(bits)
                 print(filebytes)
@@ -158,6 +166,8 @@ def convert_array(*,input,output,format='',format_out='',dimensions='',dtype='',
     print ('Using dtype={}, dtype_out={}, dimensions={}'.format(dtype,dtype_out,','.join(str(item) for item in dims)))
 
     if (format_in==format_out) and ((dtype==dtype_out) or (dtype_out=='')):
+        if ext_in == '.dats':
+            raise Exception('Concatenating list of .dat files only support for .mda or .npy output')
         print ('Simply copying file...')
         shutil.copyfile(input,output)
         print ('Done.')
@@ -191,9 +201,26 @@ def convert_array(*,input,output,format='',format_out='',dimensions='',dtype='',
             else:
                 mdaio.writenpy(A,output,dtype=dtype_out)
             return True
+        elif ext_in=='.dats' and format_in=='dat':
+            print ('Warning: loading entire array into memory. This should be avoided in the future.')
+            inputs = np.recfromtxt(input)
+            input0 = inputs[0]
+            A=np.fromfile(input0,dtype=dtype,count=np.product(dims))
+            A=A.reshape(tuple(dims),order='F')
+            A=A[channels,:] 
+            for inputn in inputs[1:]:
+                An=np.fromfile(inputn,dtype=dtype,count=np.product(dims))
+                An=An.reshape(tuple(dims),order='F')
+                An=An[channels,:]
+                A=np.concatenate(A,An,axis=0) 
+            if format_out=='mda':
+                mdaio.writemda(A,output,dtype=dtype_out)
+            else:
+                mdaio.writenpy(A,output,dtype=dtype_out)
+            return True
         elif format_in=='dat':
             print ('Warning: loading entire array into memory. This should be avoided in the future.')
-            A=np.fromfile(input,dtype=dtype,count=np.product(dims));
+            A=np.fromfile(input,dtype=dtype,count=np.product(dims))
             A=A.reshape(tuple(dims),order='F')
             A=A[channels,:]
             if format_out=='mda':
