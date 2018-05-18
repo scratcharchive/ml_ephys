@@ -1,6 +1,6 @@
 import numpy as np
 from mltools import mdaio
-import os
+import os, shutil
 
 DEBUG=False
 
@@ -79,7 +79,7 @@ def convert_array(*,input,output,format='',format_out='',dimensions='',dtype='',
     Parameters
     ----------
     input : INPUT
-        Path of input array file.
+        Path of input array file (can be repeated for concatenation).
     output : OUTPUT
         Path of the output array file.
         
@@ -96,6 +96,13 @@ def convert_array(*,input,output,format='',format_out='',dimensions='',dtype='',
     channels : string
         Comma-seperated list of channels to keep in output. Zero-based indexing. Only works for .dat to .mda conversions.
     """    
+    if isinstance(input, (list,)):
+        multifile = True
+        inputs = input
+        input = inputs[0]
+    else:
+        multifile = False
+    
     format_in=format
     if not format_in:
         format_in=determine_file_format(file_extension(input),dimensions)
@@ -140,10 +147,6 @@ def convert_array(*,input,output,format='',format_out='',dimensions='',dtype='',
             bits      = int(dtype[-2:])        # number of bits per entry of dtype, TODO: make this smarter
             if ext_in == format_in:
                 filebytes = os.stat(input).st_size # bytes in input file
-            elif ext_in == '.dats':
-                filebytes = os.stat(inputs[0]).st_size # bytes in first input file of list
-            else:
-                raise Exception('Error .dat file list only supported with .dats') 
             entries   = int(filebytes/(int(bits/8))) # entries in input file
             dims[1]   = int(entries/dims[0])   # caclulated second dimension
             if DEBUG:
@@ -164,16 +167,20 @@ def convert_array(*,input,output,format='',format_out='',dimensions='',dtype='',
         print(channels);
 
     print ('Using dtype={}, dtype_out={}, dimensions={}'.format(dtype,dtype_out,','.join(str(item) for item in dims)))
-
     if (format_in==format_out) and ((dtype==dtype_out) or (dtype_out=='')):
-        if ext_in == '.dats':
-            raise Exception('Concatenating list of .dat files only support for .mda or .npy output')
-        print ('Simply copying file...')
-        shutil.copyfile(input,output)
-        print ('Done.')
+        if multifile and (format_in == 'dat'):
+            print('Concatenating Files')
+            with open(output, "wb") as outfile:
+                for input_file in inputs:
+                    with open(input_file, "rb") as inpt:
+                        outfile.write(inpt.read())
+        elif not multifile:
+            print ('Simply copying file...')
+            shutil.copyfile(input,output)
+            print ('Done.')
         return True
 
-    if format_out=='dat':
+    if format_out=='dat' and not multifile:
         if format_in=='mda':
             H=mdaio.readmda_header(input)
             copy_raw_file_data(input,output,start_byte=H.header_size,num_entries=np.product(dims),dtype=dtype,dtype_out=dtype_out)
@@ -193,32 +200,22 @@ def convert_array(*,input,output,format='',format_out='',dimensions='',dtype='',
             raise Exception('Unexpected case.')
 
     elif (format_out=='mda') or (format_out=='npy'):
-        if format_in=='npy':
+        if format_in=='dat' and multifile:
             print ('Warning: loading entire array into memory. This should be avoided in the future.')
-            A=np.load(input,mmap_mode='r').astype(dtype=dtype,order='F',copy=False)
-            if format_out=='mda':
-                mdaio.writemda(A,output,dtype=dtype_out)
-            else:
-                mdaio.writenpy(A,output,dtype=dtype_out)
-            return True
-        elif ext_in=='.dats' and format_in=='dat':
-            print ('Warning: loading entire array into memory. This should be avoided in the future.')
-            inputs = np.recfromtxt(input)
-            input0 = inputs[0]
-            A=np.fromfile(input0,dtype=dtype,count=np.product(dims))
+            A=np.fromfile(inputs[0],dtype=dtype,count=np.product(dims))
             A=A.reshape(tuple(dims),order='F')
             A=A[channels,:] 
             for inputn in inputs[1:]:
                 An=np.fromfile(inputn,dtype=dtype,count=np.product(dims))
                 An=An.reshape(tuple(dims),order='F')
                 An=An[channels,:]
-                A=np.concatenate(A,An,axis=0) 
+                A=np.concatenate((A,An),axis=0) 
             if format_out=='mda':
                 mdaio.writemda(A,output,dtype=dtype_out)
             else:
                 mdaio.writenpy(A,output,dtype=dtype_out)
             return True
-        elif format_in=='dat':
+        elif format_in=='dat' and not multifile:
             print ('Warning: loading entire array into memory. This should be avoided in the future.')
             A=np.fromfile(input,dtype=dtype,count=np.product(dims))
             A=A.reshape(tuple(dims),order='F')
@@ -228,9 +225,43 @@ def convert_array(*,input,output,format='',format_out='',dimensions='',dtype='',
             else:
                 mdaio.writenpy(A,output,dtype=dtype_out)
             return True
-        elif format_in=='mda':
+        elif format_in=='mda' and not multifile:
             print ('Warning: loading entire array into memory. This should be avoided in the future.')
             A=mdaio.readmda(input)
+            if format_out=='mda':
+                mdaio.writemda(A,output,dtype=dtype_out)
+            else:
+                mdaio.writenpy(A,output,dtype=dtype_out)
+            return True
+        elif format_in=='mda' and multifile:
+            print ('Warning: loading entire array into memory. This should be avoided in the future.')
+            A=mdaio.readmda(inputs[0])
+            A=A[channels,:] 
+            for inputn in inputs[1:]:
+                An=mdaio.readmda(inputn)
+                An=An[channels,:]
+                A=np.concatenate((A,An),axis=0) 
+            if format_out=='mda':
+                mdaio.writemda(A,output,dtype=dtype_out)
+            else:
+                mdaio.writenpy(A,output,dtype=dtype_out)
+            return True
+        elif format_in=='npy' and not multifile:
+            print ('Warning: loading entire array into memory. This should be avoided in the future.')
+            A=np.load(input,mmap_mode='r').astype(dtype=dtype,order='F',copy=False)
+            if format_out=='mda':
+                mdaio.writemda(A,output,dtype=dtype_out)
+            else:
+                mdaio.writenpy(A,output,dtype=dtype_out)
+            return True
+        elif format_in=='npy' and multifile:
+            print ('Warning: loading entire array into memory. This should be avoided in the future.')
+            A=np.load(inputs[0],mmap_mode='r').astype(dtype=dtype,order='F',copy=False)
+            A=A[channels,:] 
+            for inputn in inputs[1:]:
+                An=np.load(inputn,mmap_mode='r').astype(dtype=dtype,order='F',copy=False)
+                An=An[channels,:]
+                A=np.concatenate((A,An),axis=0) 
             if format_out=='mda':
                 mdaio.writemda(A,output,dtype=dtype_out)
             else:
