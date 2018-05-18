@@ -33,8 +33,7 @@ class SharedChunkInfo():
 
 def create_filter_kernel(N,samplerate,freq_min,freq_max,freq_wid=1000):
     # Matches ahb's code /matlab/processors/ms_bandpass_filter.m
-    # improved ahb, changing tanh to erf, correct -3dB pts  6/14/16
-    
+    # improved ahb, changing tanh to erf, correct -3dB pts  6/14/16    
     T = N / samplerate # total time
     df = 1 / T # frequency grid
     relwid = 3.0; # relative bottom-end roll-off width param, kills low freqs by factor 1e-5.
@@ -98,7 +97,7 @@ def filter_chunk(num):
     # Note that we need to append in order, thus the shared_data object
     ###########################################################################################
     g_shared_data.reportChunkCompleted(num) # Report that we have completed this chunk
-    while True:
+    while True: # Alex: maybe there should be a timeout here in case ...
         if num == g_shared_data.lastAppendedChunk()+1:
             break
         time.sleep(0.005) # so we don't saturate the CPU unnecessarily
