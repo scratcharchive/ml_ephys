@@ -8,7 +8,7 @@ import json
 processor_name='ephys.compute_cluster_metrics'
 processor_version='0.1'
 def compute_cluster_metrics(*,timeseries='',firings,metrics_out,clip_size=100,samplerate=0,
-        compute_auto_correl=False):
+        refrac=1):
     """
     Compute cluster metrics for a spike sorting output
 
@@ -26,6 +26,9 @@ def compute_cluster_metrics(*,timeseries='',firings,metrics_out,clip_size=100,sa
         (Optional) clip size, aka snippet size (used when computing the templates, or average waveforms)
     samplerate : float
         Optional sample rate in Hz
+
+    refrac : float
+        (Optional) Whether to compute the refractory period metric.
     """    
     print('Reading firings...')
     F=mdaio.readmda(firings)
@@ -75,15 +78,20 @@ def compute_cluster_metrics(*,timeseries='',firings,metrics_out,clip_size=100,sa
             clusters[k-1]['metrics']['peak_amplitude']=peak_amplitude
         ## todo: subtract template means, compute peak amplitudes
 
-    if compute_auto_correl:
+    if refrac > 0:
         print('Computing Auto-Correlegrams')
-        auto_cors = compute_cross_correlograms_helper(firings,mode='autocorrelograms',samplerate=samplerate,max_dt_msec=50,bin_size_msec=2)
-        mid_ind  = mat_dt_msec/bins_size_msec/2
+        max_dt_msec=50
+        bin_size_msec=refrac
+        auto_cors = compute_cross_correlograms_helper(firings=firings,mode='autocorrelograms',samplerate=samplerate,max_dt_msec=max_dt_msec,bin_size_msec=bin_size_msec)
+        mid_ind  = np.floor(max_dt_msec/bin_size_msec).astype(int)
         mid_inds = np.arange(mid_ind-2,mid_ind+2)
-        for k0,auto_cor in enumerate(auto_cors):
-            peak = np.percentile(auto_cor, 75)*1.0
-            mid  = np.mean(auto_cor[mid_inds])
-            clusters[k]['metrics']['refractory_ratio'] = 1-(mid/peak)
+        for k0,auto_cor_obj in enumerate(auto_cors['correlograms']):
+            auto = auto_cor_obj['bin_counts']
+            k    = auto_cor_obj['k']
+            peak = np.percentile(auto, 75)
+            mid  = np.mean(auto[mid_inds])
+            rr   = 1-safe_div(mid,peak)
+            clusters[k-1]['metrics']['refractory_ratio'] = rr
 
     ret={
         "clusters":clusters
@@ -95,6 +103,11 @@ def compute_cluster_metrics(*,timeseries='',firings,metrics_out,clip_size=100,sa
         out.write(str)
     print('Done.')
     return True
+
+def safe_div(x,y):
+    if y == 0:
+        return 0
+    return x / y
 
 compute_cluster_metrics.name=processor_name
 compute_cluster_metrics.version=processor_version
