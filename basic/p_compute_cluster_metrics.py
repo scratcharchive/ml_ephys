@@ -8,7 +8,7 @@ import json
 processor_name='ephys.compute_cluster_metrics'
 processor_version='0.11'
 def compute_cluster_metrics(*,timeseries='',firings,metrics_out,clip_size=100,samplerate=0,
-        refrac=1):
+        refrac_msec=1):
     """
     Compute cluster metrics for a spike sorting output
 
@@ -27,7 +27,7 @@ def compute_cluster_metrics(*,timeseries='',firings,metrics_out,clip_size=100,sa
     samplerate : float
         Optional sample rate in Hz
 
-    refrac : float
+    refrac_msec : float
         (Optional) Define interval (in ms) as refractory period. If 0 then don't compute the refractory period metric.
     """    
     print('Reading firings...')
@@ -78,10 +78,12 @@ def compute_cluster_metrics(*,timeseries='',firings,metrics_out,clip_size=100,sa
             clusters[k-1]['metrics']['peak_amplitude']=peak_amplitude
         ## todo: subtract template means, compute peak amplitudes
 
-    if refrac > 0:
-        print('Computing Auto-Correlegrams')
+    if refrac_msec > 0:
+        print('Computing Refractory Period Violations')
+        msec_string = '{0:.5f}'.format(refrac_msec).rstrip('0').rstrip('.')
+        rr_string = f'refractory_violation_{msec_string}msec'
         max_dt_msec=50
-        bin_size_msec=refrac
+        bin_size_msec=refrac_msec
         auto_cors = compute_cross_correlograms_helper(firings=firings,mode='autocorrelograms',samplerate=samplerate,max_dt_msec=max_dt_msec,bin_size_msec=bin_size_msec)
         mid_ind  = np.floor(max_dt_msec/bin_size_msec).astype(int)
         mid_inds = np.arange(mid_ind-2,mid_ind+2)
@@ -90,8 +92,8 @@ def compute_cluster_metrics(*,timeseries='',firings,metrics_out,clip_size=100,sa
             k    = auto_cor_obj['k']
             peak = np.percentile(auto, 75)
             mid  = np.mean(auto[mid_inds])
-            rr   = 1-safe_div(mid,peak)
-            clusters[k-1]['metrics']['refractory_ratio'] = rr
+            rr   = safe_div(mid,peak)
+            clusters[k-1]['metrics'][rr_string] = rr
 
     ret={
         "clusters":clusters
