@@ -6,7 +6,7 @@ from p_compute_cross_correlograms import compute_cross_correlograms_helper
 import json
 
 processor_name='ephys.compute_cluster_metrics'
-processor_version='0.1'
+processor_version='0.11'
 def compute_cluster_metrics(*,timeseries='',firings,metrics_out,clip_size=100,samplerate=0,
         refrac=1):
     """
@@ -28,7 +28,7 @@ def compute_cluster_metrics(*,timeseries='',firings,metrics_out,clip_size=100,sa
         Optional sample rate in Hz
 
     refrac : float
-        (Optional) Whether to compute the refractory period metric.
+        (Optional) Define interval (in ms) as refractory period. If 0 then don't compute the refractory period metric.
     """    
     print('Reading firings...')
     F=mdaio.readmda(firings)
