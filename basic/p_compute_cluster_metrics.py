@@ -81,7 +81,7 @@ def compute_cluster_metrics(*,timeseries='',firings,metrics_out,clip_size=100,sa
     if refrac_msec > 0:
         print('Computing Refractory Period Violations')
         msec_string = '{0:.5f}'.format(refrac_msec).rstrip('0').rstrip('.')
-        rr_string = f'refractory_violation_{msec_string}msec'
+        rr_string = 'refractory_violation_{}msec'.format(msec_string)
         max_dt_msec=50
         bin_size_msec=refrac_msec
         auto_cors = compute_cross_correlograms_helper(firings=firings,mode='autocorrelograms',samplerate=samplerate,max_dt_msec=max_dt_msec,bin_size_msec=bin_size_msec)
