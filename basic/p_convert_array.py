@@ -13,8 +13,6 @@ def determine_file_format(ext,dimensions):
         return 'mda'
     elif ext=='.npy':
         return 'npy'
-    elif ext=='.dats':
-        return 'dat'
     else:
         return 'dat'
 
@@ -143,10 +141,9 @@ def convert_array(*,input,output,format='',format_out='',dimensions='',dtype='',
         raise Exception('Unable to determine datatype for output array')
     
     if (dims[1] == -1) and (dims[0] > 0):
-        if (dtype) and (format_in=='dat'):
+        if ((dtype) and (format_in=='dat') and not multifile):
             bits      = int(dtype[-2:])        # number of bits per entry of dtype, TODO: make this smarter
-            if ext_in == format_in:
-                filebytes = os.stat(input).st_size # bytes in input file
+            filebytes = os.stat(input).st_size # bytes in input file
             entries   = int(filebytes/(int(bits/8))) # entries in input file
             dims[1]   = int(entries/dims[0])   # caclulated second dimension
             if DEBUG:
@@ -154,6 +151,8 @@ def convert_array(*,input,output,format='',format_out='',dimensions='',dtype='',
                 print(filebytes)
                 print(int(filebytes/(int(bits/8))))
                 print(dims)
+        else:
+            raise Exception('Could not infer dimensions')
 
     if not dims:       
         raise Exception('Unable to determine dimensions for input array')
