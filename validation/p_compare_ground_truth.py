@@ -17,6 +17,7 @@ def create_occupancy_array(times,labels,segment_size,num_segments,K,*,spread,mul
         tmp=np.bincount(segment_inds)
         if not multiplicity:
             tmp[np.where(ret>=1)[0]]=1
+        tmp=tmp[0:num_segments] # make sure it does not overstep the bounds!
         ret[k-1,0:len(tmp)]=tmp
         if spread:
             ret[k-1,np.maximum(0,segment_inds-1)]=1
