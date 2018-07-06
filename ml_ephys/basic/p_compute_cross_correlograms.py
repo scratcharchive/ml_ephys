@@ -2,7 +2,7 @@ import numpy as np
 import h5py
 import deepdish as dd
 
-from mltools import mdaio
+from mountainlab_pytools import mdaio
 from timeserieschunkreader import TimeseriesChunkReader
 
 processor_name='ephys.compute_cross_correlograms'

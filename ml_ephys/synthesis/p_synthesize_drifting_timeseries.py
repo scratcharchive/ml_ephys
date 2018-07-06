@@ -7,7 +7,7 @@ sys.path.append(parent_path)
 
 from p_synthesize_timeseries import synthesize_timeseries
 
-from mltools import mdaio
+from mountainlab_pytools import mdaio
 
 processor_name='pyms.synthesize_drifting_timeseries'
 processor_version='0.1'

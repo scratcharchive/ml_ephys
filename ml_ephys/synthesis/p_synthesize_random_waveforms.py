@@ -1,7 +1,7 @@
 import numpy as np
 from synthesize_single_waveform import synthesize_single_waveform
 
-from mltools import mdaio
+from mountainlab_pytools import mdaio
 
 processor_name='ephys.synthesize_random_waveforms'
 processor_version='0.1'

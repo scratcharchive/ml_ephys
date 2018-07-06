@@ -1,6 +1,6 @@
 import numpy as np
 
-from mltools import mdaio
+from mountainlab_pytools import mdaio
 import json
 
 processor_name='ephys.compare_ground_truth'

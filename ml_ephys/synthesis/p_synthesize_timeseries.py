@@ -1,6 +1,6 @@
 import numpy as np
 
-from mltools import mdaio
+from mountainlab_pytools import mdaio
 
 processor_name='ephys.synthesize_timeseries'
 processor_version='0.11a'

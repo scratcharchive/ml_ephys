@@ -1,6 +1,6 @@
 import numpy as np
 
-from mltools import mdaio
+from mountainlab_pytools import mdaio
 from timeserieschunkreader import TimeseriesChunkReader
 
 processor_name='ephys.compute_templates'

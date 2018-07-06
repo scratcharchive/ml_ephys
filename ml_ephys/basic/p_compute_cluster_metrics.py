@@ -1,6 +1,6 @@
 import numpy as np
 
-from mltools import mdaio
+from mountainlab_pytools import mdaio
 from p_compute_templates import compute_templates_helper
 from p_compute_cross_correlograms import compute_cross_correlograms_helper
 import json
