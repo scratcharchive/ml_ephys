@@ -29,7 +29,6 @@ setuptools.setup(
         'numpydoc',
         'h5py'
     ],
-    dependency_links=['https://github.com/tjd2002/mltools/tarball/pypi-mountainlab_pytools#egg=mountainlab_pytools-0.1.2a'],
     classifiers=(
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: Apache Software License",
