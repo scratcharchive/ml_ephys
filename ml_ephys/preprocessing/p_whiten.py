@@ -41,7 +41,8 @@ def compute_AAt_matrix_for_chunk(num):
     t1=int(num*opts['chunk_size']) # first timepoint of the chunk
     t2=int(np.minimum(X.N2(),(t1+chunk_size))) # last timepoint of chunk (+1)
     
-    chunk=X.readChunk(i1=0,N1=X.N1(),i2=t1,N2=t2-t1) # Read the chunk
+    # Ensuring that this chunk value is float64 to avoid svd complications
+    chunk=X.readChunk(i1=0,N1=X.N1(),i2=t1,N2=t2-t1).astype(np.float64) # Read the chunk
     
     ret=chunk @ np.transpose(chunk)
     
