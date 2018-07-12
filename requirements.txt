@@ -1,5 +1,5 @@
 numpy
-git+https://github.com/magland/mltools.git
+mountainlab_pytools
 deepdish
 scipy
 numpydoc
