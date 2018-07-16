@@ -1,11 +1,26 @@
-ml_ephys
+# ml_ephys
 
 Electrophysiology tools
 MountainLab processor library
 
-Installation:
-* clone this repository into .mountainlab/packages/
-* Install the required python packages via:
+Installation from PyPI:
 
+```
+pip3 install --upgrade ml_ephys
+```
+
+Then add it as a plugin to mountainlab:
+
+```
+cd ~/.mountainlab/packages
+ml-link-python-module ml_ephys ml_ephys
+```
+
+Or installation from source:
+
+* clone this repository into .mountainlab/packages/
+
+```
 cd ml_ephys
-pip3 install --upgrade -r requirements.txt
+pip3 install --upgrade .
+```
