@@ -8,7 +8,7 @@ print('found these packages:', pkgs)
 
 setuptools.setup(
     name="ml_ephys",
-    version="0.2.0",
+    version="0.2.1",
     author="Jeremy Magland",
     author_email="",
     description="ephys tools for MountainLab",
