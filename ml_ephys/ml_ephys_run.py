@@ -5,7 +5,7 @@ from mountainlab_pytools.mlprocessors.registry import registry, register_process
 registry.namespace = "ephys_new"
 
 
-from ml_ephys.validation.p_compare_ground_truth import compare_ground_truth as original_compare_ground_truth
+from validation.p_compare_ground_truth import compare_ground_truth as original_compare_ground_truth
 
 from mountainlab_pytools.mlprocessors.core import Input, Output, Processor, IntegerParameter, FloatParameter
 from mountainlab_pytools.mlprocessors.validators import FileExtensionValidator
