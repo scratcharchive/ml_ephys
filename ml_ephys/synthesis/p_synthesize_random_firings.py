@@ -79,8 +79,8 @@ def test_synthesize_random_firings():
     synthesize_random_firings(K=K,firings_out='tmp.firings.mda')
     firings=mdaio.readmda('tmp.firings.mda')
     labels=firings[2,:]
-    assert(max(labels)==K)
-    assert(firings.shape[0]==3)    
+    assert max(labels)==K, 'Incorrect number of labels'
+    assert firings.shape[0]==3, 'Incorrect shape'
     return True
 
 synthesize_random_firings.test=test_synthesize_random_firings
