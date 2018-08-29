@@ -4,7 +4,7 @@ from mountainlab_pytools import mdaio
 import json
 
 processor_name='ephys.compare_ground_truth'
-processor_version='0.1'
+processor_version='0.2.0'
 
 def create_occupancy_array(times,labels,segment_size,num_segments,K,*,spread,multiplicity):
     ret=np.zeros((K,num_segments),dtype=np.int)
@@ -79,7 +79,7 @@ def compare_ground_truth(*,firings_true,firings,json_out,max_dt=20):
     pairwise_counts=occupancy_true @ occupancy.transpose() # Kt x K
     pairwise_accuracies=np.zeros((Kt,K))
     for k1 in range(1,Kt+1):
-        for k2 in range(1,K):
+        for k2 in range(1,K+1): # jfm fixed +1 bug on 8/29/18
             numer=pairwise_counts[k1-1,k2-1]
             denom=counts_true[k1-1]+counts[k2-1]-numer
             if denom>0:
