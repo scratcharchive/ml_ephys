@@ -12,8 +12,8 @@ FROM: continuumio/miniconda3:latest
 %post
   echo "################################## Activating conda environment"
   . /opt/conda/etc/profile.d/conda.sh
-  conda create -n env1
-  conda activate env1
+  conda create -n mountainlab
+  conda activate mountainlab
 
   echo "################################## Installing MountainLab"
   conda install -c flatiron -c conda-forge mountainlab
@@ -30,4 +30,4 @@ FROM: continuumio/miniconda3:latest
 
 %environment
   . /opt/conda/etc/profile.d/conda.sh
-  conda activate env1
+  conda activate mountainlab
