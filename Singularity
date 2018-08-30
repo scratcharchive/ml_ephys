@@ -22,8 +22,7 @@ FROM: continuumio/miniconda3:latest
   conda install python=3.6
 
   echo "################################## Installing ML package"
-  cd /working/src
-  pip install .
+  pip install /working/src
   ml-link-python-module ml_ephys `ml-config package_directory`/ml_ephys
 
   echo "################################## Testing package"
