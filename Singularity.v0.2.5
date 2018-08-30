@@ -1,9 +1,8 @@
-Bootstrap: docker
-FROM: continuumio/miniconda3:latest
+Bootstrap: shub
+FROM: magland/mlsing
 
 %labels
     Maintainer Jeremy Magland
-    Version 0.1.0
 
 %setup
   mkdir ${SINGULARITY_ROOTFS}/working
@@ -12,14 +11,7 @@ FROM: continuumio/miniconda3:latest
 %post
   echo "################################## Activating conda environment"
   . /opt/conda/etc/profile.d/conda.sh
-  conda create -n mountainlab
   conda activate mountainlab
-
-  echo "################################## Installing MountainLab"
-  conda install -c flatiron -c conda-forge mountainlab
-
-  echo "################################## Installing Python"
-  conda install python=3.6
 
   echo "################################## Installing ML package"
   pip install /working/src
