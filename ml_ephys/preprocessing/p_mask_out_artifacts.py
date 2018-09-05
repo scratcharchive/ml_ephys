@@ -180,7 +180,7 @@ def mask_chunk(num, use_it):
 
 def get_masked_indices(use_it, write_chunk_size, chunk_size, num_write_chunks):
     indices = np.arange(write_chunk_size).reshape((num_write_chunks, chunk_size))
-    return indices[use_it == 0, :].flatten()
+    return indices[np.where(use_it==0)[0], :].flatten() # fix by jfm 9/5/18
 
 
 mask_out_artifacts.name = processor_name
