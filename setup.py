@@ -10,9 +10,7 @@ pkg_name='ml_ephys'
 
 setuptools.setup(
     name=pkg_name,
-    use_scm_version=True,
-    setup_requires=['setuptools_scm'],
-#    version="0.2.6",
+    version="0.2.13",
     author="Jeremy Magland",
     author_email="",
     description="ephys tools for MountainLab",
