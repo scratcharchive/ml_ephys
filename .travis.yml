@@ -9,11 +9,14 @@ install:
 - pip install .
 script: 'true'
 deploy:
-- provider: script
-  script: "./devel/travis_deploy.sh"
-  on:
-    tags: true
-  skip_cleanup: true
+  matrix:
+  - provider: script
+    script: "./devel/travis_deploy.sh"
+    on:
+      tags: true
+    skip_cleanup: true
+  password:
+    secure: hOVBBVBjtRe/9PPgbDHcf3PZfDN+7S/ucbDWF90sJ8qrhgDtTuMOnEFJuOLjcsLHD1QgskoqBNdML1cJ+V3f0ksEyIXoKW9t5aD6GCQ5ha4OmPSplOYMJE3JlQxWB3vAnEu8zHtJIQSjmjFPWRgPnqKurZaNcsQVxFc4B8NesuE6LxmVHed/HrVQmlxbW6fWmBEI1xwFr3TJiUDLzxixrOs/4IOdd3+ILlrLJsY6J8ujfPxdvIcGfgCQlPEpkkgFoJAIBdRnrjkR1NU3U1WT5TDg7VgQLj8yBQ7+EcIZq98336AVQAjBg1XI9df5Fx86xDe9hbug9LUwPdCWITZlgSmJHhyTkgVmo6sCPTB2wCbDMSZ9G/cvfbIL9CiPaKtzdEc6qS+mAFsdUC7aqivKGXgj057muDrCjhGzWtsKzFSmgZxUTNpg26hxZM68duK16alidMe1CgeRl7nIfPrKbKu+n0/rWtxT/EiHDGAWeYo/kMUZck4/dszz1ouAqAJ8E+b+BNc6mJ+YH3OC8Fx2WOUIGBfO9pWbIj3MUyF8pP9pTnicUsWsAstaewrviaydRI1dZrkBG93Y5RqJdIFIh/VZknIqObJaPn9LZL1fRJLx8C6XEw9SpKsZA5OlF0b3tGUwMXaJkv+4HnEyxVNx7PPv5S5ZabAmbbpCQ3tmL/g=
 env:
   global:
   - secure: Z7bB8/kUsHC29yhWIdeNEOvPmsbkiFCRsMwa684UHFh/fS2JXAPb5du9YasvfDzkRHdT6ydBk0D9CuhsA3M+95bOPb7O6ZQrpJWwJYIkamG2FKGUso7TGV4lHMhgz/s2IOLw7vkSHVCdoIcjz+LErmDkaH4YtV5RE/ofX8q5WVIbL8vfvcRyo0y+OYERIc3kUAnOoeVQselyCyjRMXl4/5CErO+NTdTQ4NYGIxCQLcMcGBoi1s9rcqD+frBdLjC+rqcX8G5g7Ro1RlDaNPJo/FuMboP1/W6Y+pmur5JbUxUNRENWsi3eESkNCVG1eT/RgRpJOCUCn7Nn4SQMOJCQ3nJieb6ffarLvqL4g/t8XyCHQzOMJFo9pq0ynCb5E4stuop7luaEAq5h4P6FnSQSSKQ4COIdWbvp9Iz5AsZfg0zaobInnDDdnt9ujTm1gZfrcRVq4GKm0Tetvi6FUv5QhLPoX7MLezF8WsNOAJjlqW1820vef+p55ikQzU5V1dNJUVGbP4lSmK+BkfKzzz7HFqfLOgCulegdDYyEB47VkjFttNsWG6ktid9I5H/JUhDh6BmcoxJF5eNFt4zeESVX3kriL+GnCahd4wvvo7M0kRpcvOBpv7o9YEvaKqstjkLvhXDfb0+SIRYwKXaEtXLwuMMYxbOm1rLNzFokVwe3VgM=
