@@ -44,8 +44,9 @@ class SharedChunkInfo():
 def mask_out_artifacts(*, timeseries, timeseries_out, threshold=6, chunk_size=2000, num_write_chunks=150,
                          num_processes=os.cpu_count()):
     """
-    Masks out artifacts. Each chunk will be analyzed, and if the RSS of the chunk is above threshold, all the
-    samples in this chunk (and neighboring chunks) will be set to zero.
+    Masks out artifacts. Each chunk will be analyzed, and if the square root of the
+    RSS of the chunk is above threshold, all the samples in this chunk (and neighboring chunks)
+    will be set to zero.
 
     Parameters
     ----------
@@ -58,7 +59,7 @@ def mask_out_artifacts(*, timeseries, timeseries_out, threshold=6, chunk_size=20
     threshold : int
         Number of standard deviations away from the mean to consider as artifacts (default of 6).
     chunk_size : int
-        This chunk size will be the number of samples that will be set to zero if the RSS of this chunk is above threshold.
+        This chunk size will be the number of samples that will be set to zero if the square root RSS of this chunk is above threshold.
     num_write_chunks : int
         How many chunks will be simultaneously written to the timeseries_out path (default of 150).
     """
