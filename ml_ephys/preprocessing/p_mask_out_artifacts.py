@@ -112,9 +112,15 @@ def mask_out_artifacts(*, timeseries, timeseries_out, threshold=6, chunk_size=20
 
         artifact_indices = np.where(vals > mean0 + sigma0 * threshold)[0]
 
+        # check if the first chunk is above threshold, ensure that we don't use negative indices later
+        negIndBool = np.where(artifact_indices > 0)[0]
+
+        # check if the last chunk is above threshold to avoid a IndexError
+        maxIndBool = np.where(artifact_indices < num_chunks - 1)[0]
+
         use_it[artifact_indices] = 0
-        use_it[artifact_indices - 1] = 0  # don't use the neighbor chunks either
-        use_it[artifact_indices + 1] = 0  # don't use the neighbor chunks either
+        use_it[artifact_indices[negIndBool] - 1] = 0  # don't use the neighbor chunks either
+        use_it[artifact_indices[maxIndBool] + 1] = 0  # don't use the neighbor chunks either
 
         print("For channel %d: mean=%.2f, stdev=%.2f, chunk size = %d\n" % (m, mean0, sigma0, chunk_size))
 
