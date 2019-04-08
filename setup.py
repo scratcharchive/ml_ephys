@@ -36,35 +36,4 @@ setuptools.setup(
         "License :: OSI Approved :: Apache Software License",
         "Operating System :: OS Independent",
     ),
-    conda={
-        "build_number":0,
-        "build_script":[
-            "python -m pip install --no-deps --ignore-installed .",
-            "CMD=\"ln -sf $SP_DIR/"+pkg_name+" `CONDA_PREFIX=$PREFIX ml-config package_directory`/"+pkg_name+"\"",
-            "echo $CMD",
-            "$CMD"
-        ],
-        "test_commands":[
-            "ml-list-processors",
-            "ml-spec ephys.bandpass_filter"
-        ],
-        "test_imports":[
-            "ml_ephys",
-            "ml_ephys.basic",
-            "ml_ephys.preprocessing",
-            "ml_ephys.synthesis",
-            "ml_ephys.validation"
-        ],
-        "requirements":[
-            "python",
-            "pip",
-            "mountainlab",
-            "mountainlab_pytools",
-            "deepdish",
-            "scipy",
-            "numpy",
-            "numpydoc",
-            "h5py"
-        ]
-    }
 )
