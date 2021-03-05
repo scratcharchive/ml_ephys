@@ -161,7 +161,11 @@ def mask_chunk(num, use_it):
     chunk = X.readChunk(i1=0, N1=X.N1(), i2=t1, N2=t2 - t1).astype(np.float32)  # Read the chunk
 
     if sum(use_it) != len(use_it):
-        chunk[:, get_masked_indices(use_it, write_chunk_size, chunk_size, num_write_chunks)] = 0
+        idmax = t2 - t1
+        idx = get_masked_indices(use_it, write_chunk_size, chunk_size, num_write_chunks)
+        if idx[-1]>=idmax:
+            idx = idx[idx < idmax]
+        chunk[:, idx] = 0
 
     ###########################################################################################
     # Now we wait until we are ready to append to the output file
