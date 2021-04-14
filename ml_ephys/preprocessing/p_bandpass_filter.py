@@ -80,13 +80,13 @@ def filter_chunk(num):
     # so, aa = padding-(t1-s1)
     aa = padding-(t1-s1)
     padded_chunk[:,aa:aa+s2-s1]=X.readChunk(i1=0,N1=X.N1(),i2=s1,N2=s2-s1) # Read the padded chunk
-    
-    # Do the actual filtering with a DFT with real input
-    padded_chunk=np.fft.rfft(padded_chunk) 
     # Subtract off the mean of each channel unless we are doing only a low-pass filter
     if freq_min!=0:
         for m in range(padded_chunk.shape[0]):
-            padded_chunk[m,:]=padded_chunk[m,:]-np.mean(padded_chunk[m,:])
+            padded_chunk[m,:]=padded_chunk[m,:]-np.mean(padded_chunk[m,:])    
+    # Do the actual filtering with a DFT with real input
+    padded_chunk=np.fft.rfft(padded_chunk) 
+
     kernel=create_filter_kernel(chunk_size_with_padding,samplerate,freq_min,freq_max,freq_wid)
     kernel=kernel[0:padded_chunk.shape[1]] # because this is the DFT of real data
     padded_chunk=padded_chunk*np.tile(kernel,(padded_chunk.shape[0],1))
